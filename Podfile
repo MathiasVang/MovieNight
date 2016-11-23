@@ -8,4 +8,6 @@ target 'MovieNight' do
   # Pods for MovieNight
 pod 'Alamofire', '~> 4.0'
 
+pod 'AlamofireImage', '~> 3.1'
+
 end

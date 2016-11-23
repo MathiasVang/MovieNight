@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AlamofireImage
 
 class CustomTableViewCell: UITableViewCell {
 
@@ -31,17 +32,37 @@ class CustomTableViewCell: UITableViewCell {
     //MARK: Cell config
     func configureCellWithMovie(_ movieType: MovieType) {
         switch movieType {
-        case let person as Actor:
+        case let actor as Actor:
             
-            if let url = person.profileImageURL {
-                
-                if let name = person.name {
+            if let url = actor.imageURL?.absoluteString {
+                cellImageView.setImageFromURl(stringImageUrl: url)
+                if let name = actor.name {
                     self.cellLabel.text = name
                 }
             }
+        case let movie as Movie:
+            if let url = movie.imageURL?.absoluteString {
+                cellImageView.setImageFromURl(stringImageUrl: url)
+                if let title = movie.title {
+                    self.cellLabel.text = title
+                }
+            }
         default:
-            <#code#>
+            break
         }
     }
 
 }
+
+extension UIImageView{
+    
+    func setImageFromURl(stringImageUrl url: String){
+        
+        if let url = NSURL(string: url) {
+            if let data = NSData(contentsOf: url as URL) {
+                self.image = UIImage(data: data as Data)
+            }
+        }
+    }
+}
+
