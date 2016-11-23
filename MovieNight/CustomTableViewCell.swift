@@ -10,6 +10,9 @@ import UIKit
 
 class CustomTableViewCell: UITableViewCell {
 
+    @IBOutlet weak var cellLabel: UILabel!
+    @IBOutlet weak var cellImageView: UIImageView!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -19,6 +22,26 @@ class CustomTableViewCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
+    }
+    
+    override func prepareForReuse() {
+        self.cellImageView.image = nil
+    }
+    
+    //MARK: Cell config
+    func configureCellWithMovie(_ movieType: MovieType) {
+        switch movieType {
+        case let person as Actor:
+            
+            if let url = person.profileImageURL {
+                
+                if let name = person.name {
+                    self.cellLabel.text = name
+                }
+            }
+        default:
+            <#code#>
+        }
     }
 
 }

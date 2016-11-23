@@ -15,6 +15,10 @@ class ViewController: UIViewController {
     @IBOutlet weak var button1: UIButton!
     @IBOutlet weak var button2: UIButton!
     
+    var button1Clicked = false
+    var button2Clicked = false
+    var resultsButtonClicked = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -28,12 +32,22 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
+    @IBAction func button1(_ sender: UIButton) {
+        
+    }
+    
+    @IBAction func button2(_ sender: UIButton) {
+    }
+    
+    @IBAction func resultsButton(_ sender: UIButton) {
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showDetail" {
             
             do {
                 
-                if Reachability.isConnectedToNetwork() == true {
+                if Reachability.isInternetAvailable() == true {
                     let controller = segue.destination as! DetailViewController
                     
                     if sender as? UIButton == button1 {
