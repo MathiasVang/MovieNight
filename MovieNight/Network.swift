@@ -54,7 +54,8 @@ struct NetworkManager {
                         switch json {
                         case let object as JSONArray: completion(.success(object as AnyObject))
                         case let object as JSONDict: completion(.success(object as AnyObject))
-                        default: break
+                        default:
+                            break
                         }
                     }
                 }
