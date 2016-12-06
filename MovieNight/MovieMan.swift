@@ -7,7 +7,7 @@
 //
 
 import Foundation
-
+/*
 struct MovieManager {
     
     fileprivate let networkMan = NetworkManager()
@@ -26,4 +26,16 @@ struct MovieManager {
             }
         }
     }
-}
+    
+    func fetchPopularPeople(withPage page: Int, completion: @escaping (_ people: [MovieType]?, _ error: NSError?) -> Void) {
+        self.networkMan.requestEndpoint(.PopularPeople, withQueryString: "\(page)") { (result)  in
+            switch result {
+            case .success(let object):
+                JSONParser.parse(json: object as AnyObject, forMovieType: .actor, completion: { (people) in
+                    completion(people, nil)
+            })
+            case .failure(let error): completion(nil, error as NSError?)
+            }
+        }
+    }
+}*/

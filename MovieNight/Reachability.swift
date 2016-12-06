@@ -35,7 +35,7 @@ public class Reachability {
 // MARK: Use following code when checking for connection
 // Handle the error
 
-//  if Reachability.isConnectedToNetwork() == true {
+//  if Reachability.isInternetAvailable() == true {
 //      println("Internet connection OK")
 //  } else {
 //      println("Internet connection FAILED")

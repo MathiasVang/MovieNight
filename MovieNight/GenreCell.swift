@@ -1,48 +1,46 @@
 //
-//  CustomTableViewCell.swift
+//  GenreCell.swift
 //  MovieNight
 //
-//  Created by Mathias Vang Rasmussen on 21/11/2016.
+//  Created by Mathias Vang Rasmussen on 06/12/2016.
 //  Copyright © 2016 ReCapted. All rights reserved.
 //
 
 import UIKit
 import AlamofireImage
 
-class CustomTableViewCell: UITableViewCell {
+class GenreCell: UITableViewCell {
 
     @IBOutlet weak var cellLabel: UILabel!
-    @IBOutlet weak var cellImageView: UIImageView!
+    @IBOutlet weak var cellImage: UIImageView!
     
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
     }
-
+    
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
+        
         // Configure the view for the selected state
     }
     
     override func prepareForReuse() {
-        self.cellImageView.image = nil
+        self.cellImage.image = nil
     }
     
     //MARK: Cell config
-    func configureCellWithMovie(_ movieType: MovieType) {
+    func configureCellWithGenre(_ movieType: MovieType) {
+        
         switch movieType {
-        case let actor as Actor:
+        case let genre as Genre:
             
-            if let url = actor.imageURL?.absoluteString {
-                cellImageView.setImageFromURl(stringImageUrl: url)
-                if let name = actor.name {
-                    self.cellLabel.text = name
-                }
+            if let name = genre.name {
+                self.cellLabel.text = name
             }
         case let movie as Movie:
             if let url = movie.imageURL?.absoluteString {
-                cellImageView.setImageFromURl(stringImageUrl: url)
+                cellImage.setImageFromURl(stringImageUrl: url)
                 if let title = movie.title {
                     self.cellLabel.text = title
                 }
@@ -51,7 +49,6 @@ class CustomTableViewCell: UITableViewCell {
             break
         }
     }
-
 }
 
 extension UIImageView{
@@ -65,4 +62,3 @@ extension UIImageView{
         }
     }
 }
-

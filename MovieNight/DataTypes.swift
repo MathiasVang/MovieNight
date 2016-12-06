@@ -8,11 +8,30 @@
 
 import Foundation
 
-typealias JSON = [String : Any]
+typealias JSON = [String : AnyObject]
+typealias JSONDict = [String: AnyObject]
+typealias Result = [[String : AnyObject]]
+
 
 protocol DataType { }
 
 protocol DataProtocol {
+    var name: String { get }
     var type: DataType { get }
     init?(resultDecoder result: JSON)
+}
+
+protocol MovieType {
+    var type: Type { get }
+    var id: Int? { get }
+    var selected: Bool { get set }
+}
+
+protocol JSONDecodable {
+    init?(JSON: JSON)
+}
+
+enum Type {
+    case movie
+    case genre
 }

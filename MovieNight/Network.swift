@@ -7,86 +7,53 @@
 //
 
 import Foundation
+import Alamofire
+import AlamofireImage
 
-typealias JSONDict = [String: AnyObject]
-typealias JSONArray = [JSONDict]
+private let baseURL = "https://api.themoviedb.org/3/"
+private let APIKey = "?api_key=31f34208b1116237435d7479b781ac05"
+private let movie = "movie_credits/"
+private let genre = "genre/"
 
-enum Endpoint: String {
-    case Actor = "person"
-    case Movie = "movie"
-    
-    fileprivate var apiKey: String {
-        return "31f34208b1116237435d7479b781ac05"
-    }
-    
-    fileprivate var baseURL: String {
-        return "https://api.themoviedb.org/3/"
-    }
-    
-    func URL(withQueryString queryString: String??) -> Foundation.URL {
-        
-        switch self {
-        case .Actor:
-            let actorString = queryString!?.replacingOccurrences(of: " ", with: ",")
-            return Foundation.URL(string: baseURL + "search/\(self.rawValue)?query=\(actorString)&api_key=\(apiKey)")!
-        case .Movie: return Foundation.URL(string: baseURL + "discover/\(self.rawValue)?with_cast=\(queryString!)&api_key=\(apiKey)")!
-        }
-    }
+enum DownloadResult {
+    case success([String: AnyObject])
+    case failureWithError(Error)
+    case failureWithString(String)
 }
 
-enum APIResult {
-    case success(AnyObject)
-    case failure(Error)
-}
-
-struct NetworkManager {
-    fileprivate let session = URLSession(configuration: .default)
+class DownloadClass {
     
-    func requestEndpoint(_ endpoint: Endpoint, withQueryString queryString: String?, completion: @escaping (APIResult) -> Void) {
-        let request = URLRequest(url: endpoint.URL(withQueryString: queryString))
-        
-        let task = session.dataTask(with: request, completionHandler: { (data, response, error) in
-            OperationQueue.main.addOperation {
-                if let error = error {
-                    completion(.failure(error as NSError))
-                } else if let data = data {
-                    if let json = try? JSONSerialization.jsonObject(with: data, options: []) {
-                        switch json {
-                        case let object as JSONArray: completion(.success(object as AnyObject))
-                        case let object as JSONDict: completion(.success(object as AnyObject))
-                        default:
-                            break
-                        }
-                    }
-                }
-            }
-        })
-    task.resume()
+    enum DownloadCases {
+        case movie
+        case genre
     }
-}
+    
 
-struct JSONParser {
-    static func parse(json: AnyObject, forMovieType movieType: Type, completion: (_ movieType: [MovieType]) -> Void) {
-        var movieTypeArray = [MovieType]()
-        
-        switch movieType {
+    
+    func downloadData(downloadCase: DownloadCases, id: Int? = nil, completion: @escaping (DownloadResult) -> Void) {
+        var urlRequest: String!
+         
+        switch downloadCase {
         case .movie:
-            if let results = json["results"] as? JSONArray {
-                for json in results {
-                    if let movie = Movie(json: json) {
-                        movieTypeArray.append(movie)
-                    }
-                }
-            }
-        case .actor:
-            if let results = json["results"] as? JSONArray {
-                for json in results {
-                    if let person = Actor(json: json) {
-                        movieTypeArray.append(person)
-                    }
-                }
-            }
+            urlRequest = "\(baseURL)genre/\(id)/movies\(APIKey)"
+        case .genre:
+            urlRequest = "\(baseURL)\(genre)movie/list\(APIKey)"
         }
-        completion(movieTypeArray)
+        
+        Alamofire.request(urlRequest).responseJSON { response in
+            if let error = response.result.error {
+                completion(.failureWithError(error))
+                return
+            }
+            
+            guard let responseJSON = response.result.value as? [String: AnyObject] else {
+                completion(.failureWithString("Invalid information received from service"))
+                return
+            }
+            
+            
+            
+            completion(.success(responseJSON))
+        }
     }
 }

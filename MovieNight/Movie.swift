@@ -10,23 +10,24 @@ import Foundation
 
 struct Movie: MovieType {
     
-    let overview: String?
     let id: Int?
     let title: String?
     let imageURL: URL?
     let type = Type.movie
     var selected = false
     
-    init?(json: JSONDict) {
-        guard let overview = json["overview"] as? String, let id = json["id"] as? Int, let title = json["title"] as? String, let imageURL = json["poster_path"] as? String else { return nil }
+    init?(resultDecoder result: JSON) {
+        guard let
+            id = result["id"] as! Int?,
+            let title = result["title"] as! String?, let imageURL = result["poster_path"] as? String else { return nil }
         
-        self.overview = overview
-        self.id = id
-        self.title = title
         if let imageURL = URL(string: "https://image.tmdb.org/t/p/original\(imageURL)") {
             self.imageURL = imageURL
         } else {
             self.imageURL = nil
         }
+        
+        self.id = id
+        self.title = title
     }
 }
