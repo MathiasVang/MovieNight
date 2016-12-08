@@ -9,8 +9,6 @@
 import UIKit
 
 class GenreViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UINavigationControllerDelegate {
-    
-    // TODO: Link with storyboard
 
     @IBOutlet weak var tableView: UITableView!
     
@@ -20,27 +18,25 @@ class GenreViewController: UIViewController, UITableViewDataSource, UITableViewD
     var countOfObjects = 1
     var countOfGenres = 0
     var descrArray = [String]()
+    var selectedArray = [String]()
     var limitOfSelections = 5
-    var numberOfRowsSelected = Int()
     var typeArray = [MovieType]()
     var user1Choice = [MovieType]()
     var user2Choice = [MovieType]()
+    var lastSelectedIndexPath: NSIndexPath?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         setupView()
+        tableView.allowsMultipleSelection = true
+        
         
         // Setup delegates
         tableView.delegate = self
         tableView.dataSource = self
         navigationController?.delegate = self
         navBarDesign()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        self.tableView.allowsMultipleSelection = true
     }
 
     override func didReceiveMemoryWarning() {
@@ -58,20 +54,11 @@ class GenreViewController: UIViewController, UITableViewDataSource, UITableViewD
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "GenreCell", for: indexPath) as! GenreCell
-        
-        cell.cellImage.isHidden = true
-        
-        /*let type = typeArray[(indexPath as NSIndexPath).row]
-        cell.configureCellWithGenre(type)
-        
-        if type.selected {
-            cell.accessoryType = .checkmark
-        } else {
-            cell.accessoryType = .none
-        }*/
-        
         cell.cellLabel.text = descrArray[indexPath.row]
         
+        
+        
+        cell.cellImage.isHidden = true
         return cell
     }
     
@@ -80,9 +67,21 @@ class GenreViewController: UIViewController, UITableViewDataSource, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "GenreCell", for: indexPath) as! GenreCell
         
-        var type = typeArray[(indexPath as NSIndexPath).row]
+        if selectedArray.count <= limitOfSelections - 1 {
+            selectedArray.append(descrArray[indexPath.row])
+            cell.cellImage.isHidden = false
+            cell.cellLabel.text = descrArray[indexPath.row]
+            cell.contentView.backgroundColor = UIColor.white
+        } else {
+            cell.contentView.backgroundColor = UIColor.white
+            cell.cellLabel.text = descrArray[indexPath.row]
+        }
+
+        print(selectedArray.count)
+        
+        /*var type = typeArray[indexPath.row]
         
         type.selected = !type.selected
         typeArray[(indexPath as NSIndexPath).row] = type
@@ -109,23 +108,21 @@ class GenreViewController: UIViewController, UITableViewDataSource, UITableViewD
                 }
             }
             numberOfRowsSelected -= 1
-        }
+        }*/
         
-        tableView.reloadData()
-        
-        switch numberOfRowsSelected {
-        case 0: self.title = "Select genres"
-        case 1...limitOfSelections: self.title = "\(numberOfRowsSelected)/5 selected"
-        default: break
-        }
+        headerCounter()
     }
     
-    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-        if numberOfRowsSelected < limitOfSelections {
-            return indexPath
-        } else {
-            return nil
-        }
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "GenreCell", for: indexPath) as! GenreCell
+
+        selectedArray = selectedArray.filter{$0 != descrArray[indexPath.row]}
+        print(selectedArray.count)
+        cell.cellImage.isHidden = true
+        cell.cellLabel.text = descrArray[indexPath.row]
+        print(cell.cellImage)
+        
+        headerCounter()
     }
     
     func navigationController(_ navigationController: UINavigationController, willShow viewController: UIViewController, animated: Bool) {
@@ -139,7 +136,6 @@ class GenreViewController: UIViewController, UITableViewDataSource, UITableViewD
     // MARK: - Helper Methods
     
     func setupView() {
-        
         
         if let obj = objects {
             unwrapObjects = obj
@@ -170,4 +166,13 @@ class GenreViewController: UIViewController, UITableViewDataSource, UITableViewD
     func back(sender: UIBarButtonItem) {
         _ = navigationController?.popViewController(animated: true)
     }
+    
+    func headerCounter() {
+        switch selectedArray.count {
+        case 0: self.title = "Select genres"
+        case 1...limitOfSelections: self.title = "\(selectedArray.count) of 5 selected"
+        default: break
+        }
+    }
 }
+

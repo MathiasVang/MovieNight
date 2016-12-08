@@ -33,11 +33,8 @@ class MovieCell: UITableViewCell {
     func configureCellWithMovie(_ movieType: MovieType) {
         
         switch movieType {
-        case let genre as Genre:
-            
-            if let name = genre.name {
-                self.cellLabel.text = name
-            }
+        case is Genre:
+            break
         case let movie as Movie:
             if let url = movie.imageURL?.absoluteString {
                 cellImageView.setImageFromURl(stringImageUrl: url)
@@ -50,4 +47,16 @@ class MovieCell: UITableViewCell {
         }
     }
 
+}
+
+extension UIImageView{
+    
+    func setImageFromURl(stringImageUrl url: String){
+        
+        if let url = NSURL(string: url) {
+            if let data = NSData(contentsOf: url as URL) {
+                self.image = UIImage(data: data as Data)
+            }
+        }
+    }
 }

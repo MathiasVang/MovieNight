@@ -21,7 +21,6 @@ class GenreCell: UITableViewCell {
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-        
         // Configure the view for the selected state
     }
     
@@ -38,27 +37,11 @@ class GenreCell: UITableViewCell {
             if let name = genre.name {
                 self.cellLabel.text = name
             }
-        case let movie as Movie:
-            if let url = movie.imageURL?.absoluteString {
-                cellImage.setImageFromURl(stringImageUrl: url)
-                if let title = movie.title {
-                    self.cellLabel.text = title
-                }
-            }
+        case is Movie:
+            break
         default:
             break
         }
     }
 }
 
-extension UIImageView{
-    
-    func setImageFromURl(stringImageUrl url: String){
-        
-        if let url = NSURL(string: url) {
-            if let data = NSData(contentsOf: url as URL) {
-                self.image = UIImage(data: data as Data)
-            }
-        }
-    }
-}

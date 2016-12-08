@@ -22,7 +22,7 @@ class ViewController: UIViewController {
     var resultsButtonClicked = false
     
     var downloadClass = DownloadClass()
-    var downloadedGenre: [String: AnyObject] = [:]
+    var downloadedGenre: [String: Any] = [:]
     var objects: [AnyObject]?
     var unwrapObjects = [AnyObject]()
     var countOfObjects = 1
@@ -150,6 +150,7 @@ class ViewController: UIViewController {
     
     @IBAction func navBarButton(_ sender: Any) {
         // TODO: Logic that empties chosen arrays of IDs
+        
     }
     
     
