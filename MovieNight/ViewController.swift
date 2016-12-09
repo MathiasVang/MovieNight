@@ -22,15 +22,11 @@ class ViewController: UIViewController {
     var resultsButtonClicked = false
     
     var downloadClass = DownloadClass()
-    var downloadedGenre: [String: Any] = [:]
     var objects: [AnyObject]?
-    var unwrapObjects = [AnyObject]()
-    var countOfObjects = 1
-    var genreNameArray = [String]()
-    var genreIDArray = [Int]()
     var movieTitleArray = [String]()
     var movieImageArray = [String]()
     var posterPath: String = ""
+    var resultArray: [[String: AnyObject]]?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,14 +41,9 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-    func downloadData() {
-        
-        
-    }
-    
     @IBAction func button1(_ sender: UIButton) {
         
-        if genreNameArray.isEmpty {
+        if (resultArray?.isEmpty)! {
             print("Genre data starting to download")
             
             downloadClass.downloadData(downloadCase: .genre) { [weak self] result in
@@ -67,12 +58,7 @@ class ViewController: UIViewController {
                     print("Genre data downloaded successfully")
                     if let data = result["genres"] as? [[String: AnyObject]] {
                         print(data)
-                        for d in data {
-                            let id = d["id"]
-                            let name = d["name"]
-                            self?.genreNameArray.append(name as! String)
-                            self?.genreIDArray.append(id as! Int)
-                        }
+                        strongSelf.resultArray = data
                         strongSelf.performSegue(withIdentifier: "showDetail", sender: sender)
                     }
                 }
@@ -84,7 +70,7 @@ class ViewController: UIViewController {
     
     @IBAction func button2(_ sender: UIButton) {
         
-        if genreNameArray.isEmpty {
+        if (resultArray?.isEmpty)! {
             print("Genre data starting to download")
             
             downloadClass.downloadData(downloadCase: .genre) { [weak self] result in
@@ -99,12 +85,7 @@ class ViewController: UIViewController {
                     print("Genre data downloaded successfully(2)")
                     if let data = result["genres"] as? [[String: AnyObject]] {
                         print(data)
-                        for d in data {
-                            let id = d["id"]
-                            let name = d["name"]
-                            self?.genreNameArray.append(name as! String)
-                            self?.genreIDArray.append(id as! Int)
-                        }
+                        strongSelf.resultArray = data
                         strongSelf.performSegue(withIdentifier: "showDetail", sender: sender)
                     }
                 }
@@ -150,7 +131,7 @@ class ViewController: UIViewController {
     
     @IBAction func navBarButton(_ sender: Any) {
         // TODO: Logic that empties chosen arrays of IDs
-        
+        objects = nil
     }
     
     
@@ -166,13 +147,11 @@ class ViewController: UIViewController {
                         // do something
                         controller.title = "Select genres"
                         controller.objects = nil
-                        controller.objects = genreNameArray as [AnyObject]?
+                        controller.objects = resultArray
                     } else if sender as? UIButton == button2 {
                         controller.title = "Select genres"
                         controller.objects = nil
-                        controller.objects = genreNameArray as [AnyObject]?
-                    } else if sender as? UIButton == resultsButton {
-                        controller.title = "Results"
+                        controller.objects = resultArray
                     }
                 } else {
                     throw Errors.offline
@@ -188,6 +167,18 @@ class ViewController: UIViewController {
             }
         } else if segue.identifier == "showMovie" {
             // Do something
+            
+            do {
+                
+                if Reachability.isInternetAvailable() == true {
+                    let controller = segue.destination as! MovieViewController
+                    
+                    if sender as? UIButton == resultsButton {
+                        controller.title = "Movies"
+                        
+                    }
+                }
+            }
         }
     }
 

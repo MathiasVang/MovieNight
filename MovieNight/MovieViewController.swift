@@ -11,6 +11,8 @@ import UIKit
 class MovieViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UINavigationControllerDelegate {
     
     @IBOutlet weak var tableView: UITableView!
+    
+    var objects: [[String: AnyObject]]?
 
     override func viewDidLoad() {
         super.viewDidLoad()

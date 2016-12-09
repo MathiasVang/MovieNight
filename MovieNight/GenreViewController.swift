@@ -12,18 +12,11 @@ class GenreViewController: UIViewController, UITableViewDataSource, UITableViewD
 
     @IBOutlet weak var tableView: UITableView!
     
-    var objects: [AnyObject]?
-    var movie: MovieType?
-    var unwrapObjects = [AnyObject]()
+    var objects: [[String: AnyObject]]?
+    var unwrapObjects = [[String: AnyObject]]()
     var countOfObjects = 1
-    var countOfGenres = 0
-    var descrArray = [String]()
-    var selectedArray = [String]()
+    var selectedArray = [Int]()
     var limitOfSelections = 5
-    var typeArray = [MovieType]()
-    var user1Choice = [MovieType]()
-    var user2Choice = [MovieType]()
-    var lastSelectedIndexPath: NSIndexPath?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,16 +42,15 @@ class GenreViewController: UIViewController, UITableViewDataSource, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return descrArray.count
+        return unwrapObjects.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "GenreCell", for: indexPath) as! GenreCell
-        cell.cellLabel.text = descrArray[indexPath.row]
         
-        
-        
+        cell.cellLabel.text = unwrapObjects[indexPath.row]["name"] as? String
         cell.cellImage.isHidden = true
+        
         return cell
     }
     
@@ -70,57 +62,27 @@ class GenreViewController: UIViewController, UITableViewDataSource, UITableViewD
         let cell = tableView.dequeueReusableCell(withIdentifier: "GenreCell", for: indexPath) as! GenreCell
         
         if selectedArray.count <= limitOfSelections - 1 {
-            selectedArray.append(descrArray[indexPath.row])
+            selectedArray.append((unwrapObjects[indexPath.row]["id"] as? Int)!)
             cell.cellImage.isHidden = false
-            cell.cellLabel.text = descrArray[indexPath.row]
+            cell.cellLabel.text = unwrapObjects[indexPath.row]["name"] as? String
             cell.contentView.backgroundColor = UIColor.white
         } else {
             cell.contentView.backgroundColor = UIColor.white
-            cell.cellLabel.text = descrArray[indexPath.row]
+            cell.cellLabel.text = unwrapObjects[indexPath.row]["name"] as? String
         }
 
         print(selectedArray.count)
-        
-        /*var type = typeArray[indexPath.row]
-        
-        type.selected = !type.selected
-        typeArray[(indexPath as NSIndexPath).row] = type
-        
-        if type.selected {
-            if user1Choice.count < limitOfSelections {
-                user1Choice.append(type)
-            } else if user1Choice.count == limitOfSelections && user2Choice.count < limitOfSelections {
-                user2Choice.append(type)
-            }
-            numberOfRowsSelected += 1
-        } else {
-            if user1Choice.count < limitOfSelections {
-                for (index, typeSelected) in user1Choice.enumerated() {
-                    if typeSelected.id == type.id {
-                        user1Choice.remove(at: index)
-                    }
-                }
-            } else if user1Choice.count == limitOfSelections && user2Choice.count < limitOfSelections {
-                for (index, typeSelected) in user2Choice.enumerated() {
-                    if typeSelected.id == type.id {
-                        user2Choice.remove(at: index)
-                    }
-                }
-            }
-            numberOfRowsSelected -= 1
-        }*/
+        print(selectedArray)
         
         headerCounter()
     }
     
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
         let cell = tableView.dequeueReusableCell(withIdentifier: "GenreCell", for: indexPath) as! GenreCell
-
-        selectedArray = selectedArray.filter{$0 != descrArray[indexPath.row]}
+        selectedArray = selectedArray.filter{$0 != unwrapObjects[indexPath.row]["id"] as? Int}
         print(selectedArray.count)
         cell.cellImage.isHidden = true
-        cell.cellLabel.text = descrArray[indexPath.row]
-        print(cell.cellImage)
+        cell.cellLabel.text = unwrapObjects[indexPath.row]["name"] as? String
         
         headerCounter()
     }
@@ -141,13 +103,6 @@ class GenreViewController: UIViewController, UITableViewDataSource, UITableViewD
             unwrapObjects = obj
         }
         countOfObjects = unwrapObjects.count
-        
-        for i in 0 ..< countOfObjects {
-            descrArray.append(objects?[i] as! String)
-            countOfGenres += 1
-        }
-        
-        countOfObjects = unwrapObjects.count
     }
     
     func navBarDesign() {
@@ -156,15 +111,20 @@ class GenreViewController: UIViewController, UITableViewDataSource, UITableViewD
         self.navigationController?.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName: UIColor.white]
         self.navigationController?.navigationBar.shadowImage = UIImage()
         self.navigationItem.hidesBackButton = true
-        let newBackButton = UIBarButtonItem(title: "Back", style: UIBarButtonItemStyle.plain, target: self, action: #selector(GenreViewController.back(sender:)))
-        newBackButton.tintColor = UIColor.white
-        self.navigationItem.leftBarButtonItem = newBackButton
-        
-        
+        let newBackButton = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.plain, target: self, action: #selector(GenreViewController.done(sender:)))
+        newBackButton.tintColor = UIColor(red: 255/255.0, green: 255/255.0, blue: 255/255.0, alpha: 0.65)
+        self.navigationItem.rightBarButtonItem = newBackButton
+        newBackButton.isEnabled = false
     }
+
     
-    func back(sender: UIBarButtonItem) {
-        _ = navigationController?.popViewController(animated: true)
+    func done(sender: UIBarButtonItem) {
+        
+        let homeScreen = storyboard?.instantiateViewController(withIdentifier: "ViewController") as! ViewController
+        homeScreen.objects = self.selectedArray as [AnyObject]?
+        navigationController?.pushViewController(homeScreen, animated: true)
+        print(homeScreen.objects?.count as Any)
+        print(homeScreen.objects as Any)
     }
     
     func headerCounter() {
@@ -172,6 +132,15 @@ class GenreViewController: UIViewController, UITableViewDataSource, UITableViewD
         case 0: self.title = "Select genres"
         case 1...limitOfSelections: self.title = "\(selectedArray.count) of 5 selected"
         default: break
+        }
+        let newBackButton = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.plain, target: self, action: #selector(GenreViewController.done(sender:)))
+        newBackButton.tintColor = UIColor.white
+        self.navigationItem.rightBarButtonItem = newBackButton
+        
+        if selectedArray.count < limitOfSelections {
+            newBackButton.isEnabled = false
+        } else {
+            newBackButton.isEnabled = true
         }
     }
 }
