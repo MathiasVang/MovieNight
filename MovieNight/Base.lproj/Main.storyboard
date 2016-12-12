@@ -165,7 +165,7 @@
         <!--Movie View Controller-->
         <scene sceneID="78V-13-0wM">
             <objects>
-                <viewController automaticallyAdjustsScrollViewInsets="NO" id="MA8-Ib-DAv" customClass="MovieViewController" customModule="MovieNight" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="MA8-Ib-DAv" customClass="MovieViewController" customModule="MovieNight" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Hdm-hL-WVS"/>
                         <viewControllerLayoutGuide type="bottom" id="80k-cE-o93"/>
@@ -178,7 +178,7 @@
                                 <rect key="frame" x="0.0" y="64" width="375" height="603"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="MovieCell" rowHeight="75" id="9VV-yX-fFe" customClass="MovieCell">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="MovieCell" rowHeight="75" id="9VV-yX-fFe" customClass="MovieCell" customModule="MovieNight">
                                         <rect key="frame" x="0.0" y="28" width="375" height="75"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="9VV-yX-fFe" id="ud6-VX-SbI">
@@ -213,8 +213,8 @@
                                             <accessibilityTraits key="traits" notEnabled="YES"/>
                                         </accessibility>
                                         <connections>
-                                            <outlet property="cellImageView" destination="m7z-iC-Wqt" id="ekZ-es-0ji"/>
-                                            <outlet property="cellLabel" destination="egQ-Sc-dUE" id="eXG-rf-zVD"/>
+                                            <outlet property="cellImage" destination="m7z-iC-Wqt" id="EAV-qG-wRj"/>
+                                            <outlet property="cellLabel" destination="egQ-Sc-dUE" id="gis-FI-fut"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -230,7 +230,7 @@
                     </view>
                     <toolbarItems/>
                     <connections>
-                        <outlet property="tableView" destination="fWf-1T-OVZ" id="0Lm-ek-Eur"/>
+                        <outlet property="tableView" destination="fWf-1T-OVZ" id="big-rm-mJO"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="CXA-Iq-dc8" userLabel="First Responder" sceneMemberID="firstResponder"/>

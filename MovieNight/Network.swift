@@ -14,6 +14,7 @@ private let baseURL = "https://api.themoviedb.org/3/"
 private let APIKey = "?api_key=31f34208b1116237435d7479b781ac05"
 private let movie = "movie_credits/"
 private let genre = "genre/"
+private let imageBaseURL = "http://image.tmdb.org/t/p/w185//"
 
 enum DownloadResult {
     case success([String: AnyObject])
@@ -35,7 +36,7 @@ class DownloadClass {
          
         switch downloadCase {
         case .movie:
-            urlRequest = "\(baseURL)genre/\(id)/movies\(APIKey)"
+            urlRequest = "\(baseURL)\(genre)\(id!)/movies\(APIKey)"
         case .genre:
             urlRequest = "\(baseURL)\(genre)movie/list\(APIKey)"
         }
@@ -50,10 +51,30 @@ class DownloadClass {
                 completion(.failureWithString("Invalid information received from service"))
                 return
             }
-            
-            
-            
             completion(.success(responseJSON))
+        }
+    }
+    
+    func downloadImage(downloadCase: DownloadCases, path: String, completion: @escaping (DownloadResult) -> Void) {
+        var urlRequest: String!
+        
+        switch downloadCase {
+        case .movie:
+            urlRequest = "\(imageBaseURL)\(path)"
+        case .genre:
+            break
+        }
+        
+        Alamofire.request(urlRequest).responseImage { response in
+            debugPrint(response)
+            
+            print(response.request)
+            print(response.response)
+            debugPrint(response.result)
+            
+            if let image = response.result.value {
+                print("image downloaded: \(image)")
+            }
         }
     }
 }

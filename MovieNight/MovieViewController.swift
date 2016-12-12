@@ -7,22 +7,36 @@
 //
 
 import UIKit
+import AlamofireImage
 
 class MovieViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UINavigationControllerDelegate {
     
     @IBOutlet weak var tableView: UITableView!
     
+    var downloadClass = DownloadClass()
     var objects: [[String: AnyObject]]?
+    var unwrapObjects = [[String: AnyObject]]()
+    var countOfObjects = 1
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
         
+        setupView()
         tableView.delegate = self
         tableView.dataSource = self
         navigationController?.delegate = self
         navBarDesign()
+    }
+    
+    func setupView() {
+        
+        if let obj = objects {
+            unwrapObjects = obj
+        }
+        
+        countOfObjects = unwrapObjects.count
     }
 
     override func didReceiveMemoryWarning() {
@@ -35,11 +49,14 @@ class MovieViewController: UIViewController, UITableViewDataSource, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        return unwrapObjects.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell", for: indexPath) as! MovieCell
+        
+        
+        cell.cellLabel.text = unwrapObjects[indexPath.row]["title"] as? String
         
         return cell
     }
@@ -71,3 +88,4 @@ class MovieViewController: UIViewController, UITableViewDataSource, UITableViewD
         _ = navigationController?.popViewController(animated: true)
     }
 }
+

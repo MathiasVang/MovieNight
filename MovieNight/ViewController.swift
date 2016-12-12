@@ -22,11 +22,12 @@ class ViewController: UIViewController {
     var resultsButtonClicked = false
     
     var downloadClass = DownloadClass()
-    var objects: [AnyObject]?
+    var objects: [Int]?
     var movieTitleArray = [String]()
     var movieImageArray = [String]()
     var posterPath: String = ""
-    var resultArray: [[String: AnyObject]]?
+    var resultArray: [[String: AnyObject]] = []
+    var movieArray: [[String: AnyObject]] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,7 +44,7 @@ class ViewController: UIViewController {
     
     @IBAction func button1(_ sender: UIButton) {
         
-        if (resultArray?.isEmpty)! {
+        if resultArray.isEmpty {
             print("Genre data starting to download")
             
             downloadClass.downloadData(downloadCase: .genre) { [weak self] result in
@@ -70,7 +71,7 @@ class ViewController: UIViewController {
     
     @IBAction func button2(_ sender: UIButton) {
         
-        if (resultArray?.isEmpty)! {
+        if resultArray.isEmpty {
             print("Genre data starting to download")
             
             downloadClass.downloadData(downloadCase: .genre) { [weak self] result in
@@ -97,32 +98,32 @@ class ViewController: UIViewController {
     
     @IBAction func resultsButton(_ sender: UIButton) {
         
-        if movieTitleArray.isEmpty {
+        if movieArray.isEmpty {
             print("Movie data starting to download")
-        
-            downloadClass.downloadData(downloadCase: .movie) { [weak self] result in
-                guard let strongSelf = self else { return }
+            
+            for i in objects! {
                 
-                switch result {
-                case .failureWithError(let error):
-                    print(error.localizedDescription)
-                case .failureWithString(let string):
-                    print(string)
-                case .success(let result):
-                    print("Movie data downloaded successfully")
-                    if let data = result["results"] as? [[String: AnyObject]] {
-                        print(data)
-                        for d in data {
-                            let title = d["title"]
-                            let image = d["poster_path"]
-                            self?.movieTitleArray.append(title as! String)
-                            self?.movieImageArray.append(image as! String)
-                        
-                            print(self?.movieImageArray as Any)
+                downloadClass.downloadData(downloadCase: .movie, id: i) { [weak self] result in
+                    guard let strongSelf = self else { return }
+                    
+                    switch result {
+                    case .failureWithError(let error):
+                        print(error.localizedDescription)
+                    case .failureWithString(let string):
+                        print(string)
+                    case .success(let result):
+                        print("Movie data downloaded successfully")
+                        print(result)
+                        if let data = result["results"] as? [[String: AnyObject]] {
+                            print(data)
+                            self?.movieArray.append(contentsOf: data)
+                            //strongSelf.movieArray = data
+                            strongSelf.performSegue(withIdentifier: "showMovie", sender: sender)
                         }
-                        strongSelf.performSegue(withIdentifier: "showMovie", sender: sender)
                     }
                 }
+                
+                downloadClass.downloadImage(downloadCase: .movie, path: movieArray["poster_path"], completion: <#T##(DownloadResult) -> Void#>)
             }
         } else {
             performSegue(withIdentifier: "showMovie", sender: sender)
@@ -175,9 +176,20 @@ class ViewController: UIViewController {
                     
                     if sender as? UIButton == resultsButton {
                         controller.title = "Movies"
-                        
+                        controller.objects = nil
+                        controller.objects = movieArray
                     }
+                } else {
+                    throw Errors.offline
                 }
+            } catch Errors.offline {
+                let alertController = UIAlertController(title: "No Internet Connection", message: "Please make sure you are connected via WiFi or cellular", preferredStyle: .alert)
+                let action = UIAlertAction(title: "OK", style: .default, handler: nil)
+                alertController.addAction(action)
+                
+                self.present(alertController, animated: true, completion: nil)
+            } catch let error {
+                fatalError("\(error)")
             }
         }
     }

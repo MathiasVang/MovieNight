@@ -121,7 +121,7 @@ class GenreViewController: UIViewController, UITableViewDataSource, UITableViewD
     func done(sender: UIBarButtonItem) {
         
         let homeScreen = storyboard?.instantiateViewController(withIdentifier: "ViewController") as! ViewController
-        homeScreen.objects = self.selectedArray as [AnyObject]?
+        homeScreen.objects = self.selectedArray as [Int]?
         navigationController?.pushViewController(homeScreen, animated: true)
         print(homeScreen.objects?.count as Any)
         print(homeScreen.objects as Any)

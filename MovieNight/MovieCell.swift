@@ -12,7 +12,7 @@ import AlamofireImage
 class MovieCell: UITableViewCell {
 
     @IBOutlet weak var cellLabel: UILabel!
-    @IBOutlet weak var cellImageView: UIImageView!
+    @IBOutlet weak var cellImage: UIImageView!
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -21,12 +21,10 @@ class MovieCell: UITableViewCell {
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
         // Configure the view for the selected state
     }
     
     override func prepareForReuse() {
-        self.cellImageView.image = nil
     }
     
     //MARK: Cell config
@@ -36,11 +34,8 @@ class MovieCell: UITableViewCell {
         case is Genre:
             break
         case let movie as Movie:
-            if let url = movie.imageURL?.absoluteString {
-                cellImageView.setImageFromURl(stringImageUrl: url)
-                if let title = movie.title {
-                    self.cellLabel.text = title
-                }
+            if let title = movie.title {
+                self.cellLabel.text = title
             }
         default:
             break
@@ -49,14 +44,3 @@ class MovieCell: UITableViewCell {
 
 }
 
-extension UIImageView{
-    
-    func setImageFromURl(stringImageUrl url: String){
-        
-        if let url = NSURL(string: url) {
-            if let data = NSData(contentsOf: url as URL) {
-                self.image = UIImage(data: data as Data)
-            }
-        }
-    }
-}
