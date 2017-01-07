@@ -13,6 +13,7 @@ class MovieCell: UITableViewCell {
 
     @IBOutlet weak var cellLabel: UILabel!
     @IBOutlet weak var cellImage: UIImageView!
+    @IBOutlet weak var loadingStatus: UIActivityIndicatorView!
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -25,6 +26,26 @@ class MovieCell: UITableViewCell {
     }
     
     override func prepareForReuse() {
+    }
+    
+    func displayImage(imageUrl: String){
+        
+        imageView?.image = nil
+        if cellImage != nil && imageUrl != "" {
+            print(imageUrl)
+        } else {
+            loadingStatus.isHidden = true
+        }
+    }
+    
+    func startLoading(){
+        loadingStatus.isHidden = false
+        loadingStatus.startAnimating()
+    }
+    
+    func stopLoading(){
+        loadingStatus.isHidden = true
+        loadingStatus.stopAnimating()
     }
     
     //MARK: Cell config

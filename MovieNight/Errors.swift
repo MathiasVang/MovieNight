@@ -10,4 +10,5 @@ import Foundation
 
 enum Errors: Error {
     case offline
+    case noMovies
 }

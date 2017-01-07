@@ -35,3 +35,4 @@ enum Type {
     case movie
     case genre
 }
+

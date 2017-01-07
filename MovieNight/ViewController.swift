@@ -10,7 +10,7 @@ import UIKit
 import Alamofire
 import AlamofireImage
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, GenreViewControllerDelegate {
 
     @IBOutlet weak var resultsButton: UIButton!
     @IBOutlet weak var navBarButton: UIBarButtonItem!
@@ -21,13 +21,18 @@ class ViewController: UIViewController {
     var button2Clicked = false
     var resultsButtonClicked = false
     
+    var myGroup = DispatchGroup()
     var downloadClass = DownloadClass()
+    var person1Answers: [Int]?
+    var person2Answers: [Int]?
+    var finalAnswers = [Int]()
     var objects: [Int]?
     var movieTitleArray = [String]()
-    var movieImageArray = [String]()
+    var movieImageArray: [UIImage]? = [UIImage]()
     var posterPath: String = ""
     var resultArray: [[String: AnyObject]] = []
-    var movieArray: [[String: AnyObject]] = []
+    var movieArray: [[String: Any]]?
+    var answerSet = [Int]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,13 +41,27 @@ class ViewController: UIViewController {
         resultsButtonDesign()
         navBarDesign()
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    
+    
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        button1Clicked = false
+        button2Clicked = false
+    }
+    
+    func genreViewControllerResponse(data: [Int]) {
+        person1Answers = data
+        
+        for i in person1Answers! {
+            finalAnswers.append(i)
+        }
+        
+        answerSet = Array(Set(finalAnswers))
     }
     
     @IBAction func button1(_ sender: UIButton) {
+        button1Clicked = true
         
         if resultArray.isEmpty {
             print("Genre data starting to download")
@@ -58,10 +77,11 @@ class ViewController: UIViewController {
                 case .success(let result):
                     print("Genre data downloaded successfully")
                     if let data = result["genres"] as? [[String: AnyObject]] {
-                        print(data)
                         strongSelf.resultArray = data
                         strongSelf.performSegue(withIdentifier: "showDetail", sender: sender)
                     }
+                default:
+                    break
                 }
             }
         } else {
@@ -70,6 +90,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func button2(_ sender: UIButton) {
+        button2Clicked = true
         
         if resultArray.isEmpty {
             print("Genre data starting to download")
@@ -85,10 +106,10 @@ class ViewController: UIViewController {
                 case .success(let result):
                     print("Genre data downloaded successfully(2)")
                     if let data = result["genres"] as? [[String: AnyObject]] {
-                        print(data)
                         strongSelf.resultArray = data
                         strongSelf.performSegue(withIdentifier: "showDetail", sender: sender)
                     }
+                default: break
                 }
             }
         } else {
@@ -97,42 +118,65 @@ class ViewController: UIViewController {
     }
     
     @IBAction func resultsButton(_ sender: UIButton) {
+        print("Movie data starting to download")
         
-        if movieArray.isEmpty {
-            print("Movie data starting to download")
-            
-            for i in objects! {
+        print("Her der der IDs:", answerSet)
+        
+            downloadClass.downloadData(downloadCase: .movie, id: answerSet) { [weak self] result in
+                guard let strongSelf = self else { return }
                 
-                downloadClass.downloadData(downloadCase: .movie, id: i) { [weak self] result in
-                    guard let strongSelf = self else { return }
-                    
-                    switch result {
-                    case .failureWithError(let error):
-                        print(error.localizedDescription)
-                    case .failureWithString(let string):
-                        print(string)
-                    case .success(let result):
-                        print("Movie data downloaded successfully")
-                        print(result)
-                        if let data = result["results"] as? [[String: AnyObject]] {
-                            print(data)
-                            self?.movieArray.append(contentsOf: data)
-                            //strongSelf.movieArray = data
-                            strongSelf.performSegue(withIdentifier: "showMovie", sender: sender)
+                switch result {
+                case .failureWithError(let error):
+                    print(error.localizedDescription)
+                case .failureWithString(let string):
+                    print(string)
+                case .success(let result):
+                    print("Movie data downloaded successfully")
+                    if let data = result["results"] as? [[String: Any]] {
+                        print("Her der data:", data)
+                        strongSelf.movieArray = data
+                        for i in data {
+                            print("hodor")
+                            self?.myGroup.enter()
+                            strongSelf.downloadClass.downloadImage(downloadCase: .movie, path: (i["poster_path"] as! String)) { result in
+                                switch result {
+                                case .failureWithError(let error):
+                                    print(error.localizedDescription)
+                                case .failureWithString(let string):
+                                    print(string)
+                                case .imageSucces(let result):
+                                    print("hallelujah")
+                                    strongSelf.movieImageArray?.append(result)
+                                default: break
+                                }
+                                self?.myGroup.leave()
+                            }
                         }
+                        self?.myGroup.notify(queue: DispatchQueue.main, execute: {
+                            do {
+                                if (self?.movieArray?.isEmpty)! {
+                                    throw Errors.noMovies
+                                } else {
+                                    strongSelf.performSegue(withIdentifier: "showMovie", sender: sender)
+                                }
+                            } catch {
+                                let alertController = UIAlertController(title: "No movies available", message: "No movies fit these genres", preferredStyle: .alert)
+                                let action = UIAlertAction(title: "OK", style: .default, handler: nil)
+                                alertController.addAction(action)
+                                
+                                self?.present(alertController, animated: true, completion: nil)
+                            }
+                        })
                     }
-                }
-                
-                downloadClass.downloadImage(downloadCase: .movie, path: movieArray["poster_path"], completion: <#T##(DownloadResult) -> Void#>)
+                default: break
             }
-        } else {
-            performSegue(withIdentifier: "showMovie", sender: sender)
         }
     }
-    
+
     @IBAction func navBarButton(_ sender: Any) {
         // TODO: Logic that empties chosen arrays of IDs
-        objects = nil
+        movieArray = nil
+        movieImageArray = nil
     }
     
     
@@ -144,6 +188,8 @@ class ViewController: UIViewController {
                 if Reachability.isInternetAvailable() == true {
                     let controller = segue.destination as! GenreViewController
                     
+                    
+                    controller.delegate = self
                     if sender as? UIButton == button1 {
                         // do something
                         controller.title = "Select genres"
@@ -167,7 +213,6 @@ class ViewController: UIViewController {
                 fatalError("\(error)")
             }
         } else if segue.identifier == "showMovie" {
-            // Do something
             
             do {
                 
@@ -175,9 +220,11 @@ class ViewController: UIViewController {
                     let controller = segue.destination as! MovieViewController
                     
                     if sender as? UIButton == resultsButton {
+                        print("HomeImageArray: ", movieImageArray as Any)
                         controller.title = "Movies"
                         controller.objects = nil
                         controller.objects = movieArray
+                        controller.movieImageArray = movieImageArray
                     }
                 } else {
                     throw Errors.offline

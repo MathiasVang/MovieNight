@@ -10,13 +10,19 @@ import Foundation
 import Alamofire
 import AlamofireImage
 
+let correctURL = "https://api.themoviedb.org/3/discover/movie?api_key=31f34208b1116237435d7479b781ac05&page=1&with_genres=%2212,35,18,27,10402%22"
+
 private let baseURL = "https://api.themoviedb.org/3/"
 private let APIKey = "?api_key=31f34208b1116237435d7479b781ac05"
-private let movie = "movie_credits/"
+private let movie = "discover/movie"
+private let page = "&page=1"
+private let withGenre = "&with_genres=%22"
 private let genre = "genre/"
-private let imageBaseURL = "http://image.tmdb.org/t/p/w185//"
+private let ending = "%22"
+private let imageBaseURL = "https://image.tmdb.org/t/p/w185//"
 
 enum DownloadResult {
+    case imageSucces(UIImage)
     case success([String: AnyObject])
     case failureWithError(Error)
     case failureWithString(String)
@@ -29,14 +35,20 @@ class DownloadClass {
         case genre
     }
     
-
-    
-    func downloadData(downloadCase: DownloadCases, id: Int? = nil, completion: @escaping (DownloadResult) -> Void) {
+    func downloadData(downloadCase: DownloadCases, id: [Int]? = nil, completion: @escaping (DownloadResult) -> Void) {
         var urlRequest: String!
+        
+        var genreID: String {
+            var string = [String]()
+            id.map { string.append(String(describing: $0)) }
+            return string.joined(separator: ",")
+        }
+        
+        print(genreID)
          
         switch downloadCase {
         case .movie:
-            urlRequest = "\(baseURL)\(genre)\(id!)/movies\(APIKey)"
+            urlRequest = "\(baseURL)\(movie)\(APIKey)\(page)\(withGenre)\(genreID)\(ending)".addingPercentEncoding(withAllowedCharacters: NSCharacterSet.urlQueryAllowed)
         case .genre:
             urlRequest = "\(baseURL)\(genre)movie/list\(APIKey)"
         }
@@ -66,15 +78,27 @@ class DownloadClass {
         }
         
         Alamofire.request(urlRequest).responseImage { response in
-            debugPrint(response)
-            
-            print(response.request)
-            print(response.response)
-            debugPrint(response.result)
+            if let error = response.result.error {
+                completion(.failureWithError(error))
+                return
+            }
             
             if let image = response.result.value {
                 print("image downloaded: \(image)")
+                completion(.imageSucces(image))
+            } else {
+                print("image failed")
             }
+            
         }
     }
 }
+
+
+
+
+
+
+
+
+

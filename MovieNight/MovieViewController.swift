@@ -14,9 +14,12 @@ class MovieViewController: UIViewController, UITableViewDataSource, UITableViewD
     @IBOutlet weak var tableView: UITableView!
     
     var downloadClass = DownloadClass()
-    var objects: [[String: AnyObject]]?
-    var unwrapObjects = [[String: AnyObject]]()
+    var objects: [[String: Any]]?
+    var unwrapObjects = [[String: Any]]()
     var countOfObjects = 1
+    var movieImageArray: [UIImage]? = [UIImage]()
+    var cachedImages = [String: UIImage]()
+    var delegate: GenreViewControllerDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,6 +31,12 @@ class MovieViewController: UIViewController, UITableViewDataSource, UITableViewD
         tableView.dataSource = self
         navigationController?.delegate = self
         navBarDesign()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        tableView.reloadData()
     }
     
     func setupView() {
@@ -55,23 +64,12 @@ class MovieViewController: UIViewController, UITableViewDataSource, UITableViewD
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell", for: indexPath) as! MovieCell
         
-        
         cell.cellLabel.text = unwrapObjects[indexPath.row]["title"] as? String
+        
+        cell.cellImage.image = movieImageArray![indexPath.row]
         
         return cell
     }
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
     
     func navBarDesign() {
         self.navigationController?.navigationBar.barTintColor = UIColor(red: 189/255.0, green: 89/255.0, blue: 90/255.0, alpha: 1.0)
